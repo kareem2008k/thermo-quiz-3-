@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>كويز الثيرمو – المحاضرة 3 (صعب)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f7;--ink:#10233a;--mute:#5b6b7c;--line:#c5d1dc;--card:#fff;--brass:#b8891f;--ok:#1f8a5b;--okbg:#e2f4ea;--bad:#c0392b;--badbg:#fbe7e4;--btn:#10233a;--btnt:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1824;--ink:#e6edf4;--mute:#93a4b5;--line:#2b3f53;--card:#13273a;--brass:#e0b04a;--ok:#4cc38a;--okbg:#12362a;--bad:#ff7b6b;--badbg:#3a1d1a;--btn:#e0b04a;--btnt:#10233a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1824;--ink:#e6edf4;--mute:#93a4b5;--line:#2b3f53;--card:#13273a;--brass:#e0b04a;--ok:#4cc38a;--okbg:#12362a;--bad:#ff7b6b;--badbg:#3a1d1a;--btn:#e0b04a;--btnt:#10233a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Cairo',system-ui,'Segoe UI',Tahoma,sans-serif;line-height:1.7}
+main{max-width:640px;margin:0 auto;padding:24px 18px 48px}
+h1{font-size:1.9rem;font-weight:800;line-height:1.3;margin:8px 0}
+p{margin:6px 0;color:var(--mute)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.btn{background:var(--btn);color:var(--btnt);border:0;border-radius:10px;padding:12px 26px;font-weight:600;font-size:1.05rem;margin-top:16px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:6px 0 18px}
+.bar i{display:block;height:100%;background:var(--brass);transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:.9rem}
+.q{font-size:1.2rem;font-weight:600;margin:8px 0 14px}
+.opt{display:block;width:100%;text-align:start;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:12px 14px;margin:9px 0;font-size:1.05rem}
+.opt:hover:not(:disabled){border-color:var(--brass)}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--bad);background:var(--badbg)}
+.exp{border-inline-start:4px solid var(--brass);padding:6px 12px;margin:14px 0;color:var(--ink)}
+.gauge{width:100%;max-width:340px;display:block;margin:8px auto 0}
+.needle{transform-origin:120px 130px;transform:rotate(-90deg);transition:transform 1.6s cubic-bezier(.2,.9,.25,1.05)}
+.score{text-align:center;font-size:3rem;font-weight:800;line-height:1.1;direction:ltr}
+.msg{text-align:center;font-size:1.15rem;color:var(--ink);font-weight:600}
+.rev{border-top:1px solid var(--line);padding:12px 0}
+.rev b{color:var(--bad)}
+.center{text-align:center}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const Q=[
+{q:"باروميتر بيقرا 750 mm Hg (ρ زئبق = 13600 kg/m³) وgauge على خزان بيقرا 2 bar. الضغط المطلق في الخزان؟",o:["300 kPa","102 kPa","200 kPa","2,100 kPa"],a:0,e:"Patm = ρgh = 13600 × 9.8 × 0.75 ≈ 100 kPa. و Pg = 2 bar = 200 kPa. يبقى Pabs = 100 + 200 = 300 kPa. لو نسيت الـ Patm تطلع 200، ولو اعتبرت 1 bar = 1000 kPa تطلع 2,100."},
+{q:"U-tube manometer فيه زيت كثافته 800 kg/m³ وفرق الارتفاع بين العمودين 0.5 m. الضغط gauge؟",o:["3,920 Pa","39,200 Pa","392 Pa","7,840 Pa"],a:0,e:"Pg = ρgh = 800 × 9.8 × 0.5 = 3,920 Pa. الكثافة هنا للسائل اللي في الأنبوبة (الزيت) مش للزئبق."},
+{q:"R لغاز البيوتان C₄H₁₀ بالـ J/kg·K (H = 1 وC = 12)؟",o:["143.3","173.2","277.1","0.143"],a:0,e:"M = 4×12 + 10×1 = 58. R = 8314/58 = 143.3 J/kg·K. الرقم 173.2 بيطلع لو نسيت ذرات الهيدروجين (M = 48)."},
+{q:"خزان أكسجين O₂ حجمه 4 m³ وقراءة gauge فيه 300 kPa والضغط الجوي 100 kPa ودرجة حرارته 27°C. كتلة الغاز؟",o:["20.5 kg","15.4 kg","18.6 kg","228 kg"],a:0,e:"R = 8314/32 = 259.8. Pabs = 400 kPa وT = 300 K. m = PV/RT = (400×10³ × 4)/(259.8 × 300) = 20.5 kg. الـ 15.4 لو استخدمت الـ gauge، والـ 18.6 لو استخدمت R بتاع الهوا، والـ 228 لو نسيت تحول 27°C لـ K."},
+{q:"هيليوم M = 4 وγ = 5/3. قيمة Cp بالـ J/kg·K؟",o:["5,196","3,118","2,078","3,464"],a:0,e:"R = 8314/4 = 2078.5. Cp = γR/(γ−1) = (5/3)(2078.5)/(2/3) = 2.5 × 2078.5 = 5,196. الـ 3,118 هي Cv، والـ 3,464 بتطلع لو نسيت تقسم على (γ−1)."},
+{q:"0.2 kg نيتروجين (R = 297 وγ = 1.4) اتسخن من 20°C لـ 220°C. التغير في الطاقة الداخلية ΔU؟",o:["29,700 J","41,580 J","11,880 J","8,486 J"],a:0,e:"Cv = R/(γ−1) = 297/0.4 = 742.5. ΔT = 200 K (الفرق نفسه بالـ °C والـ K). ΔU = 0.2 × 742.5 × 200 = 29,700 J. الـ 41,580 بتطلع لو استخدمت Cp."},
+{q:"خزان O₂ مقفول وثابت الحجم فيه 20.5 kg (γ = 1.4، M = 32) اتسخن من 27°C لـ 127°C. الحرارة Q؟",o:["1,331 kJ","1,864 kJ","1,472 kJ","133 kJ"],a:0,e:"الخزان مقفول وثابت الحجم يعني W = 0 فـ Q = ΔU = mCvΔT. Cv = 259.8/0.4 = 649.5. Q = 20.5 × 649.5 × 100 = 1,331 kJ. الـ 1,864 لو استخدمت Cp، والـ 1,472 لو استخدمت Cv بتاع الهوا."},
+{q:"هوا بيدخل nozzle بسرعة 50 m/s وبيخرج بسرعة 250 m/s، والنظام معزول (Q = 0) ومفيش شغل (Cp = 1005). التغير في درجة الحرارة؟",o:["−29.9 K","+29.9 K","−59.7 K","−41.8 K"],a:0,e:"0 = ½(c₂² − c₁²) + Cp·ΔT ⇒ ΔT = −½(250² − 50²)/1005 = −30,000/1005 = −29.9 K. السرعة زادت فالحرارة نزلت. الـ −59.7 لو نسيت ½، والـ −41.8 لو استخدمت Cv."},
+{q:"مكبس بيضغط غاز: الشغل المبذول على الغاز 40 kJ، والغاز فقد حرارة 15 kJ للوسط. التغير في الطاقة الداخلية؟",o:["+25 kJ","−55 kJ","−25 kJ","+55 kJ"],a:0,e:"Q = −15 kJ (حرارة خارجة) وW = −40 kJ (شغل مبذول على النظام). ΔU = Q − W = −15 − (−40) = +25 kJ."},
+{q:"خزان ثابت الحجم، الضغط gauge فيه 200 kPa عند 37°C والضغط الجوي 100 kPa. اتسخن لحد ما الـ gauge بقى 500 kPa. درجة الحرارة النهائية بالـ °C؟",o:["347°C","502°C","620°C","74°C"],a:0,e:"P1 = 300 kPa وP2 = 600 kPa (مطلق). T1 = 310 K. حجم ثابت: T2 = 310 × 600/300 = 620 K = 347°C. الـ 502 لو استخدمت الـ gauge، والـ 620 لو نسيت ترجع من K لـ °C."}
+];
+const app=document.getElementById("app");let order,i,score,wrong,locked;
+function best(){try{return +localStorage.getItem("thermo3hard")||0}catch(e){return 0}}
+function save(s){try{if(s>best())localStorage.setItem("thermo3hard",s)}catch(e){}}
+function start(){app.innerHTML=`<h1>كويز المحاضرة 3: مستوى صعب</h1><p>${Q.length} أسئلة من مواضيع السبورة بس بمستوى أصعب وفيها فخاخ شائعة. بعد كل سؤال هتشوف الحل، وفي الآخر عقرب العداد بيقولك جبت كام.</p>${best()?`<p>أعلى نتيجة ليك: ${best()} من ${Q.length}</p>`:""}<button class="btn" id="go">ابدأ الكويز</button>`;
+document.getElementById("go").onclick=begin}
+function begin(){i=0;score=0;wrong=[];order=Q.map((q,k)=>k);show()}
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function show(){locked=false;const q=Q[order[i]];const opts=shuffle(q.o.map((t,k)=>({t,k})));
+app.innerHTML=`<div class="meta"><span>سؤال ${i+1} من ${Q.length}</span><span>صح: ${score}</span></div><div class="bar"><i style="width:${i/Q.length*100}%"></i></div><div class="q">${q.q}</div><div id="os">${opts.map(o=>`<button class="opt" data-k="${o.k}" dir="auto">${o.t}</button>`).join("")}</div><div id="fb"></div>`;
+app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(b,q))}
+function pick(b,q){if(locked)return;locked=true;const k=+b.dataset.k;const okk=k===q.a;if(okk)score++;else wrong.push({q,k});
+app.querySelectorAll(".opt").forEach(x=>{x.disabled=true;const kk=+x.dataset.k;if(kk===q.a)x.classList.add("ok");else if(x===b)x.classList.add("bad")});
+const last=i===Q.length-1;
+document.getElementById("fb").innerHTML=`<div class="exp"><b>${okk?"صح ✔":"غلط ✘"}</b> — ${q.e}</div><button class="btn" id="nx">${last?"شوف نتيجتك":"السؤال التالي"}</button>`;
+const nx=document.getElementById("nx");nx.focus();nx.onclick=()=>{i++;last?result():show()}}
+function pt(t,r){const a=Math.PI*(1-t);return[(120+r*Math.cos(a)).toFixed(1),(130-r*Math.sin(a)).toFixed(1)]}
+function arc(t1,t2,c){const[a,b]=pt(t1,100),[d,e]=pt(t2,100);return`<path d="M${a} ${b}A100 100 0 0 1 ${d} ${e}" fill="none" stroke="${c}" stroke-width="12"/>`}
+function result(){save(score);const n=Q.length;let ticks="";for(let k=0;k<=n;k++){const[a,b]=pt(k/n,86),[c,d]=pt(k/n,76);const[x,y]=pt(k/n,64);ticks+=`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="currentColor" stroke-width="2"/><text x="${x}" y="${(+y+4)}" font-size="10" text-anchor="middle" fill="currentColor">${k}</text>`}
+const m=score>=9?"ممتاز! ماسك الشابتر كويس.":score>=7?"كويس جداً. راجع الغلطات تحت وهتبقى تمام.":score>=5?"محتاج تراجع الملخص والسبورة مرة كمان.":"ارجع للسبورة والملخص وجرب تاني، هتتحسن.";
+app.innerHTML=`<svg class="gauge" viewBox="0 0 240 150" role="img" aria-label="نتيجتك ${score} من ${n}">${arc(0,.5,"#c0392b")}${arc(.5,.8,"#b8891f")}${arc(.8,1,"#1f8a5b")}${ticks}<g class="needle" id="nd"><line x1="120" y1="130" x2="120" y2="50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></g><circle cx="120" cy="130" r="7" fill="currentColor"/></svg>
+<div class="score" id="sc">0 / ${n}</div><p class="msg">${m}</p>
+<div class="center"><button class="btn" id="rt">جرب تاني</button></div><div id="rv"></div>`;
+setTimeout(()=>{document.getElementById("nd").style.transform=`rotate(${-90+180*score/n}deg)`},80);
+let c=0;const t=setInterval(()=>{document.getElementById("sc").textContent=`${c} / ${n}`;if(c>=score)clearInterval(t);c++},1600/Math.max(score,1)/1.2);
+document.getElementById("rt").onclick=begin;
+if(wrong.length)document.getElementById("rv").innerHTML=`<h2 style="font-size:1.2rem;margin-top:28px">راجع غلطاتك (${wrong.length})</h2>`+wrong.map(w=>`<div class="rev"><div>${w.q.q}</div><div><b>إجابتك:</b> <span dir="auto">${w.q.o[w.k]}</span></div><div style="color:var(--ok)"><b>الصح:</b> <span dir="auto">${w.q.o[w.q.a]}</span></div><div class="exp">${w.q.e}</div></div>`).join("")}
+start();
+</script>
+</body>
+</html>
